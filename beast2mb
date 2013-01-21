@@ -1,0 +1,60 @@
+#!/bin/bash
+
+## Convert beast mcmc-tree output to mrbayes output
+##
+## 04/15/2009 13:37:35 AM CEST
+## Johan Nylander
+##
+## Usage: beast2mb infile
+##
+## Notes: Requires the Perl script beast2phy.pl
+##        Writes file <infile>.t to cwd.
+##
+
+## Set globals
+beast2phy="beast2phy.pl"
+outputfileending='.t'
+
+## Check beast2phy.pl
+beast2phy=`which $beast2phy`
+if ! [ -x "$beast2phy" ]; then
+    echo "beast2phy.pl can not be found in the PATH. Quitting."
+    exit 1
+fi
+
+## Check arguments
+if [ $# -gt 1  ] || [ ! $1 ] ; then
+  echo
+  echo "Usage: `basename $0` beast.tree.file"
+  echo
+  exit 1
+fi
+
+## Check input file
+if [ -f "$1" ] ; then
+      infile=$1
+  else
+      echo
+      echo "File \"$1\" does not exist."
+      echo "Usage: `basename $0` beast.tree.file"
+      exit 1
+fi
+
+## Set output file
+base=${infile%.*}
+outfile=$base$outputfileending
+if [ -e "$outfile" ] ; then
+    echo
+    echo "Outfile \"$outfile\" already exists. Quitting"
+    echo
+    exit 1
+fi
+
+## Try to convert
+$beast2phy --decimals=6 --format=mb --outfile=$outfile $infile
+
+## Finish
+echo
+echo "read $infile, wrote $outfile"
+echo
+
